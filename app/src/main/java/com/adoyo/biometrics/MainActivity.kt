@@ -15,6 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.adoyo.biometrics.ui.theme.BiometricsTheme
 
 class MainActivity : AppCompatActivity() {
+    private val promptManager by lazy { BiometricManager(this) }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()

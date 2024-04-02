@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
 import androidx.biometric.BiometricManager.Authenticators.DEVICE_CREDENTIAL
+import androidx.biometric.BiometricPrompt
 import androidx.biometric.BiometricPrompt.PromptInfo
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -52,8 +53,28 @@ class BiometricManager(
             }
             else -> Unit
         }
+        val prompt = BiometricPrompt(
+            activity,
+            object: BiometricPrompt.AuthenticationCallback() {
+                override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
+                    resultChannel.trySend(BiometricResult.AuthenticationError(errString.toString()))
+                }
+
+                override fun onAuthenticationFailed() {
+                    resultChannel.trySend(BiometricResult.AuthenticationFailed)
+                }
+
+                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
+                    resultChannel.trySend(BiometricResult.AuthenticationSucceeded)
+                }
+
+            }
+        )
+        prompt.authenticate(promptInfo.build())
 
     }
+
+
 
     sealed interface BiometricResult {
         data object HardwareUnavailable : BiometricResult
